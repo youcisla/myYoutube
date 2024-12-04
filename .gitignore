@@ -1,0 +1,25 @@
+# Node.js
+Project/myYoutube/site/node_modules/
+Project/myYoutube/site/dist/
+
+# Python
+*.pyc
+__pycache__/
+*.sqlite3
+
+# Logs and Environment
+*.log
+.env
+
+# Vendor (PHP/Composer)
+Project/vendor/
+
+# OS Specific
+.DS_Store
+Thumbs.db
+
+# Build files
+dist/
+"Project/myYoutube/site/node_modules/" 
+"Project/myYoutube/site/dist/" 
+"Project/vendor/" 
