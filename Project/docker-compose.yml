@@ -1,0 +1,21 @@
+services:
+  api:
+    build:
+      context: ./myYoutube/myAPI
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+  site:
+    build:
+      context: ./myYoutube/site
+      dockerfile: Dockerfile
+    ports:
+      - "3000:8080"
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: myyoutube
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
