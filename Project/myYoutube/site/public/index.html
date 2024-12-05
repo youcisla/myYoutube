@@ -31,7 +31,7 @@
 </div>
 
 <script>
-    const apiBaseUrl = 'http://127.0.0.1:8000/api'; // Updated API base URL
+    const apiBaseUrl = 'http://127.0.0.1:8000'; // Base API URL
 
     function displayMessage(type, text) {
         const message = $("#message");
@@ -41,7 +41,7 @@
 
     function fetchVideos() {
         $.ajax({
-            url: `${apiBaseUrl}/videos/`, // Correct URL
+            url: `${apiBaseUrl}/videos`, // Fetch videos endpoint
             method: 'GET',
             success: function (response) {
                 const videoList = $("#videoList");
@@ -50,7 +50,7 @@
                     videoList.append(`
                         <div class="col-md-4">
                             <div class="card">
-                                <video controls class="card-img-top" src="${video.source}"></video>
+                                <video controls class="card-img-top" src="${apiBaseUrl}${video.source}"></video>
                                 <div class="card-body">
                                     <h5 class="card-title">${video.name}</h5>
                                     <button class="btn btn-danger btn-sm delete-video" data-id="${video.id}">Delete</button>
@@ -71,6 +71,20 @@
         });
     }
 
+    function deleteVideo(videoId) {
+        $.ajax({
+            url: `${apiBaseUrl}/video/${videoId}`, // Delete video endpoint
+            method: 'DELETE',
+            success: function () {
+                displayMessage('success', 'Video deleted successfully');
+                fetchVideos();
+            },
+            error: function () {
+                displayMessage('danger', 'Failed to delete video');
+            }
+        });
+    }
+
     $("#videoForm").submit(function (e) {
         e.preventDefault();
         const formData = new FormData();
@@ -78,7 +92,7 @@
         formData.append('source', $("#videoFile")[0].files[0]);
 
         $.ajax({
-            url: `${apiBaseUrl}/api/videos/`, // Ensure this URL matches the backend
+            url: `${apiBaseUrl}/user/1/video`, // Upload video endpoint (update user ID if necessary)
             method: 'POST',
             data: formData,
             processData: false,
@@ -92,6 +106,11 @@
                 displayMessage('danger', 'Failed to upload video');
             }
         });
+    });
+
+    // Fetch videos on page load
+    $(document).ready(function () {
+        fetchVideos();
     });
 </script>
 
