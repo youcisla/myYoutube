@@ -1,38 +1,29 @@
-"""
-URL configuration for Django project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from MyAPI import views
 from MyAPI.views import CreateVideoView, Users
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('auth/check-username', views.CheckUsername.as_view(), name='check-username'),
+    path("register/", views.Register.as_view(), name="register"),
+    path('login/', views.LoginView.as_view(), name='login'),  # Use one definition
     path('user', views.Register.as_view()),
     path('users', views.GetUsers.as_view()),
-    path('auth', views.Login.as_view()),
+    path('auth', views.Login.as_view()),  # Consider removing if unnecessary
     path('user/<int:id>', views.Users.as_view()),
-    path('user/<int:id>/video/', CreateVideoView.as_view(), name='create-video'),
+    path('user/<int:id>/video', CreateVideoView.as_view(), name='create-video'),
     path('videos', views.GetVideos.as_view()),
     path('user/<int:id>/videos', views.ManageMyVideo.as_view()),
     path('video/<int:id>', views.GetVideo.as_view()),
-    
-]
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

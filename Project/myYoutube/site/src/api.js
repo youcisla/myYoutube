@@ -1,41 +1,41 @@
 import axios from 'axios';
-const baseURL = "http://127.0.0.1:8000"; // Replace with the actual base URL
 
-axios.defaults.baseURL = 'http://127.0.0.1:8000';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 
-// Fetch all videos
-export const fetchVideos = async () => {
+// Signup API
+export const signup = async (userData) => {
     try {
-        const response = await fetch(`${baseURL}/videos`);
-        const data = await response.json();
-        return data.data;
+        const response = await axios.post(`${API_BASE_URL}/register/`, userData); // Ensure trailing slash
+        return response.data;
     } catch (error) {
-        console.error('Failed to fetch videos', error);
-        return [];
-    }
-};
-
-// Upload a video
-export const uploadVideo = async (userId, formData) => {
-    try {
-        const response = await fetch(`${baseURL}/user/${userId}/video`, {
-            method: 'POST',
-            body: formData
-        });
-        return await response.json();
-    } catch (error) {
-        console.error('Failed to upload video', error);
+        console.error('Signup failed:', error.response?.data || error.message);
         throw error;
     }
 };
 
-// Delete a video
-export const deleteVideo = async (videoId) => {
+// Login API
+export const login = async (credentials) => {
     try {
-        await fetch(`${baseURL}/video/${videoId}`, {
-            method: 'DELETE'
-        });
+        const response = await axios.post('http://127.0.0.1:8000/login/', credentials); // Ensure trailing slash
+        return response.data;
     } catch (error) {
-        console.error('Failed to delete video', error);
+        console.error('Login failed:', error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// Example Authenticated API Call
+export const fetchWithAuth = async (url) => {
+    try {
+        const token = localStorage.getItem('token'); // Retrieve token from local storage
+        const response = await axios.get(`${API_BASE_URL}${url}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Fetch with Auth failed:', error.response?.data || error.message);
+        throw error;
     }
 };

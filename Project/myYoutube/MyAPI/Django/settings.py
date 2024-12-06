@@ -31,10 +31,11 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheaders',
-    'MyAPI',
-    'rest_framework',
-    'rest_framework_simplejwt',
+    'corsheaders',  # Handles CORS policies
+    'MyAPI',  # Your custom app
+    'rest_framework',  # Django REST Framework
+    'rest_framework_simplejwt',  # JWT for authentication
+    'rest_framework.authtoken',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,7 +45,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Enable CORS middleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -73,18 +74,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Django.wsgi.application'
-
-
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-}
-
 
 
 # Database
@@ -132,29 +121,51 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # Add this line
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Location where collectstatic will store files
+
+# Media files (Uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_PROFILE_MODULE = 'MyAPI.MyUser'
+# Custom user model
 AUTH_USER_MODEL = 'MyAPI.MyUser'
 
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOW_ALL_ORIGINS = True
-
+# CORS configuration
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    'http://localhost:3000',  # Replace with your frontend URL
 ]
+CORS_ALLOW_CREDENTIALS = True
 
+# REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
+# Append slash configuration
+APPEND_SLASH = True
+
+# Static files collectstatic configuration warning
+if not os.path.exists(os.path.join(BASE_DIR, 'static')):
+    print("Warning: STATICFILES_DIRS points to a non-existent directory.")
+
+# Debugging warning for production
+if not DEBUG:
+    ALLOWED_HOSTS = ['your-production-domain.com']  # Update with your domain
+    print("Warning: DEBUG is False but ALLOWED_HOSTS is not configured.")
+
+# settings.py
 APPEND_SLASH = False
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-MEDIA_URL = '/media/'
-
-DEBUG = True
+CORS_ALLOW_ALL_ORIGINS = True
