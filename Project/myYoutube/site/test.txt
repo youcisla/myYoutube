@@ -1,0 +1,49 @@
+
+> myyoutube-site@1.0.0 start
+> react-scripts start
+
+(node:2400) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:2400) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Failed to compile.
+
+[eslint] 
+src\index.js
+Syntax error: [BABEL] C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\src\index.js: Cannot find module '@babel/plugin-proposal-private-property-in-object' (0:undefined)
+Require stack:
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\babel-preset-react-app\create.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\babel-preset-react-app\index.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\@babel\core\lib\config\files\module-types.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\@babel\core\lib\config\files\configuration.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\@babel\core\lib\config\files\index.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\@babel\core\lib\index.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\@rollup\plugin-babel\dist\index.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\workbox-build\build\lib\bundle.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\workbox-webpack-plugin\build\generate-sw.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\workbox-webpack-plugin\build\index.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\react-scripts\config\webpack.config.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\react-scripts\scripts\start.js (While processing: "C:\\Users\\Y.CHEHBOUB\\Downloads\\myYoutube\\Project\\myYoutube\\site\\node_modules\\babel-preset-react-app\\prod.js")
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\index.js
+  Line 0:  Parsing [1m[31merror[39m[22m[1m: [BABEL] C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\src\index.js: Cannot find module '@babel/plugin-proposal-private-property-in-object'
+Require stack:
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\babel-preset-react-app\create.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\babel-preset-react-app\index.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\@babel\core\lib\config\files\module-types.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\@babel\core\lib\config\files\configuration.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\@babel\core\lib\config\files\index.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\@babel\core\lib\index.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\@rollup\plugin-babel\dist\index.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\workbox-build\build\lib\bundle.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\workbox-webpack-plugin\build\generate-sw.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\workbox-webpack-plugin\build\index.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\react-scripts\config\webpack.config.js
+- C:\Users\Y.CHEHBOUB\Downloads\myYoutube\Project\myYoutube\site\node_modules\react-scripts\scripts\start.js (While processing: "C:\\Users\\Y.CHEHBOUB\\Downloads\\myYoutube\\Project\\myYoutube\\site\\node_modules\\babel-preset-react-app\\prod.js")
+
+[39m[22m
+
+webpack compiled with [1m[31m1 error[39m[22m
+^C^CTerminate batch job (Y/N)? 
+^C

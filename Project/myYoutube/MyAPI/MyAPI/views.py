@@ -1,17 +1,21 @@
 # from django.shortcuts import render
 import string
-from rest_framework. response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import status
-from django.contrib.auth import login, logout, authenticate
-from MyAPI.serializers import  VideoSerializer, RegistrationSerializer, UserSerializer
-from .models import *
-from MyAPI.models import MyUser, Video
+
 import jwt
-from rest_framework.decorators import parser_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.parsers import JSONParser
+from django.contrib.auth import authenticate, login, logout
+from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
+from MyAPI.models import MyUser, Video
+from MyAPI.serializers import (RegistrationSerializer, UserSerializer,
+                               VideoSerializer)
+from rest_framework import status
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .models import *
 
 # login = './User/login.html'
 # home_page = './User/home.html'
@@ -124,48 +128,42 @@ class Users(TokenObtainPairView):
             get.save()
             return Response({'Message': 'User Update successfully  ', "Users Data":serializer.data })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-
-
-
 
 class CreateVideoView(TokenObtainPairView):
     serializer_class = VideoSerializer
 
-    def post(self, request,id):
-        print(id)
-        if id is not None:
-            name = request.data.get('name')
-            source = request.data.get('source')
-            UserID = MyUser.objects.get(id=id)
-            if (not source) or (not name):
-                return Response({'Message': 'name and file are required'})
-            video = Video(name=name, source=source, UserID=UserID)
-            video.save()
-            video_data = VideoSerializer(video).data
-            return Response({"message": "OK","data": video_data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'Message': 'Login before you create a Video'})
+    def post(self, request, id):
+        user = MyUser.objects.get(id=id)
+        name = request.data.get('name')
+        source = request.FILES.get('source')  # Use FILES to handle uploaded files
 
+        if not name or not source:
+            return Response({'Message': 'Name and source file are required'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Save the file using FileSystemStorage
+        fs = FileSystemStorage()
+        filename = fs.save(source.name, source)
+
+        # Create the video object
+        video = Video.objects.create(name=name, source=filename, UserID=user)
+        return Response({'message': 'OK', 'data': VideoSerializer(video).data}, status=status.HTTP_201_CREATED)
 
 class GetVideos(TokenObtainPairView):
     serializer_class = VideoSerializer
 
     def get(self, request):
-        video = Video.objects.all()
         name = request.query_params.get('name', None)
-        user = request.query_params.get('user', None)
-        duration = request.query_params.get('duration', None)
         page = request.query_params.get('page', 1)
         perPage = request.query_params.get('perPage', 5)
+
+        videos = Video.objects.all().order_by('-id')  # Ensure explicit ordering
+
         if name:
-            users = Video.objects.filter(username__icontains=name)  
-        else:
-            users = Video.objects.all()
-        paginator = Paginator(users, perPage)
+            videos = videos.filter(name__icontains=name)
+
+        paginator = Paginator(videos, perPage)
         page_obj = paginator.get_page(page)
-        serializer = VideoSerializer(page_obj, many=True)
+        serializer = VideoSerializer(page_obj, many=True, context={'request': request})
         return Response({
             "message": "OK",
             "data": serializer.data,
@@ -174,8 +172,6 @@ class GetVideos(TokenObtainPairView):
                 "total": paginator.num_pages
             }
         }, status=status.HTTP_200_OK)
-    
-    
 
 class ManageMyVideo(TokenObtainPairView):
     serializer_class = VideoSerializer

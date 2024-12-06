@@ -1,43 +1,54 @@
-import React, { useState } from "react";
-import { uploadVideo } from "../api";
+import axios from 'axios';
+import React, { useState } from 'react';
+import axiosInstance from '../api/axiosInstance';
 
 const UploadVideo = () => {
     const [videoFile, setVideoFile] = useState(null);
-    const [videoName, setVideoName] = useState("");
 
-    const handleUpload = async (e) => {
+    const handleFileChange = (e) => {
+        setVideoFile(e.target.files[0]);
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!videoFile) return;
+
         const formData = new FormData();
-        formData.append("name", videoName);
-        formData.append("source", videoFile);
+        formData.append('video', videoFile);
 
         try {
-            const response = await uploadVideo(formData);
-            alert(`Video uploaded: ${response.data.name}`);
+            const response = await axiosInstance.post('/user/1/video', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Video uploaded:', response.data);
         } catch (error) {
-            console.error("Upload failed", error);
+            console.error('Error uploading video:', error);
         }
     };
 
     return (
-        <form onSubmit={handleUpload}>
-            <h2>Upload a Video</h2>
-            <input
-                type="text"
-                placeholder="Video Name"
-                value={videoName}
-                onChange={(e) => setVideoName(e.target.value)}
-                required
-            />
-            <input
-                type="file"
-                onChange={(e) => setVideoFile(e.target.files[0])}
-                accept="video/*"
-                required
-            />
-            <button type="submit">Upload</button>
-        </form>
+        <div>
+            <form onSubmit={handleSubmit}>
+                <input type="file" accept="video/*" onChange={handleFileChange} />
+                <button type="submit">Upload</button>
+            </form>
+        </div>
     );
 };
 
 export default UploadVideo;
+
+const handleUpload = async () => {
+    try {
+        const response = await axios.post('/user/1/video', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        console.log('Video uploaded:', response.data);
+    } catch (error) {
+        console.error('Error uploading video:', error.message);
+    }
+};

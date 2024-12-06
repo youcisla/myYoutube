@@ -1,12 +1,18 @@
-import React from "react";
-import Videos from "./components/Videos";
+import React, { useState } from 'react';
+import Header from './components/Header';
+import Home from './components/Home';
+import UploadVideo from './components/UploadVideo';
 
-function App() {
+const App = () => {
+    const [page, setPage] = useState('home');
+
     return (
-        <div className="App">
-            <Videos />
+        <div>
+            <Header navigate={setPage} />
+            {page === 'home' && <Home />}
+            {page === 'upload' && <UploadVideo navigate={setPage} />}
         </div>
     );
-}
+};
 
 export default App;

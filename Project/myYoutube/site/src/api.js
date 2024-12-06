@@ -1,33 +1,41 @@
-const API_BASE_URL = "http://localhost:5000";
+import axios from 'axios';
+const baseURL = "http://127.0.0.1:8000"; // Replace with the actual base URL
 
-export const addVideo = async (videoData) => {
-    const response = await fetch(`${API_BASE_URL}/videos/create/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token for authenticated users
-        },
-        body: JSON.stringify(videoData),
-    });
+axios.defaults.baseURL = 'http://127.0.0.1:8000';
 
-    if (!response.ok) {
-        throw new Error("Failed to add video");
+// Fetch all videos
+export const fetchVideos = async () => {
+    try {
+        const response = await fetch(`${baseURL}/videos`);
+        const data = await response.json();
+        return data.data;
+    } catch (error) {
+        console.error('Failed to fetch videos', error);
+        return [];
     }
-
-    return response.json();
 };
 
-export const deleteVideo = async (videoId) => {
-    const response = await fetch(`${API_BASE_URL}/video/${videoId}/delete/`, {
-        method: "DELETE",
-        headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token for authenticated users
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error("Failed to delete video");
+// Upload a video
+export const uploadVideo = async (userId, formData) => {
+    try {
+        const response = await fetch(`${baseURL}/user/${userId}/video`, {
+            method: 'POST',
+            body: formData
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to upload video', error);
+        throw error;
     }
+};
 
-    return response.json();
+// Delete a video
+export const deleteVideo = async (videoId) => {
+    try {
+        await fetch(`${baseURL}/video/${videoId}`, {
+            method: 'DELETE'
+        });
+    } catch (error) {
+        console.error('Failed to delete video', error);
+    }
 };
