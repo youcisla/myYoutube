@@ -14,9 +14,10 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.14.1",
-    "react-scripts": "^5.0.1"
+    "react-scripts": "^3.0.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.26.4",
     "@babel/core": "^7.26.0",
     "@babel/plugin-transform-private-property-in-object": "^7.25.9",
     "@babel/preset-env": "^7.26.0",
@@ -24,10 +25,13 @@
     "@svgr/webpack": "^8.1.0",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^9.2.1",
-    "css-loader": "^6.7.1",
+    "css-loader": "^6.11.0",
+    "cssnano": "^5.1.15",
     "eslint": "^8.57.1",
+    "postcss": "^8.4.31",
     "resolve-url-loader": "^5.0.0",
     "style-loader": "^3.3.3",
+    "svgo": "^2.8.0",
     "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.7.4"
