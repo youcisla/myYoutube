@@ -1,18 +1,21 @@
-import React from 'react';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import Home from './Home';
-import Login from './Login';
-import Signup from './Signup';
+import React, { useState } from "react";
+import Header from "./components/Header";
+import Login from "./components/Login";
+import MyVideos from "./components/MyVideos";
+import Signup from "./components/Signup";
+import UploadVideo from "./components/UploadVideo";
 
 const App = () => {
+    const [page, setPage] = useState("login");
+
     return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-            </Routes>
-        </Router>
+        <div>
+            <Header navigate={setPage} />
+            {page === "login" && <Login navigate={setPage} />}
+            {page === "signup" && <Signup navigate={setPage} />}
+            {page === "my-videos" && <MyVideos />}
+            {page === "upload-video" && <UploadVideo />}
+        </div>
     );
 };
 

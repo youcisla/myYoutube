@@ -1,10 +1,8 @@
 from django.contrib import admin
-from MyAPI import models
-from MyAPI.models import MyUser
-from MyAPI.models import Video
 from django.contrib.auth.admin import UserAdmin
 from django.db import models
-
+from MyAPI import models
+from MyAPI.models import MyUser, Video
 
 
 class CustomUserAdmin(UserAdmin):
@@ -21,5 +19,15 @@ class VideoManager(admin.ModelAdmin):
     
 
 
-admin.site.register(MyUser, CustomUserAdmin)
-admin.site.register(Video, VideoManager)
+# admin.site.register(MyUser, CustomUserAdmin)
+# admin.site.register(Video, VideoManager)
+
+# @admin.register(MyUser)
+# class MyUserAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'username', 'email', 'pseudo', 'is_staff', 'is_active')
+#     search_fields = ('username', 'email', 'pseudo')
+
+# @admin.register(Video)
+# class VideoAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'name', 'UserID')
+#     search_fields = ('name', 'UserID__username')

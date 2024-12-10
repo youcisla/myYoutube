@@ -1,62 +1,57 @@
-import React, { useState } from 'react';
-import axios from '../api/axiosInstance';
+import axios from "axios";
+import React, { useState } from "react";
 
 const UploadVideo = () => {
     const [videoFile, setVideoFile] = useState(null);
-    const [videoName, setVideoName] = useState('');
+    const [uploadStatus, setUploadStatus] = useState("");
 
     const handleFileChange = (e) => {
         setVideoFile(e.target.files[0]);
     };
 
-    const handleNameChange = (e) => {
-        setVideoName(e.target.value);
-    };
-
-    const handleSubmit = async (e) => {
+    const handleUpload = async (e) => {
         e.preventDefault();
-        if (!videoFile || !videoName) {
-            alert('Both name and file are required.');
+
+        if (!videoFile) {
+            setUploadStatus("Please select a video file.");
+            return;
+        }
+
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            setUploadStatus("You need to be logged in to upload a video.");
             return;
         }
 
         const formData = new FormData();
-        formData.append('name', videoName);
-        formData.append('source', videoFile);
+        formData.append("video", videoFile);
 
         try {
-            const response = await axios.post('/user/1/video', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Video uploaded:', response.data);
+            const response = await axios.post(
+                "http://127.0.0.1:8000/upload-video/",
+                formData,
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+            setUploadStatus("Video uploaded successfully!");
         } catch (error) {
-            if (error.response) {
-                console.error('Server responded with:', error.response.status, error.response.data);
-                alert(`Error uploading video: ${error.response.status}`);
-            } else if (error.request) {
-                console.error('No response received:', error.request);
-                alert('Error uploading video: No response from server');
-            } else {
-                console.error('Error setting up request:', error.message);
-                alert('Error uploading video: ' + error.message);
-            }
+            console.error("Error uploading video:", error.response?.data || error.message);
+            setUploadStatus("Failed to upload video. Please try again.");
         }
     };
 
     return (
         <div>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Video Name"
-                    value={videoName}
-                    onChange={handleNameChange}
-                />
-                <input type="file" accept="video/*" onChange={handleFileChange} />
-                <button type="submit">Upload</button>
+            <h2>Upload Video</h2>
+            <form onSubmit={handleUpload}>
+                <input type="file" onChange={handleFileChange} accept="video/*" />
+                <button type="submit">Upload Video</button>
             </form>
+            <p>{uploadStatus}</p>
         </div>
     );
 };

@@ -2,83 +2,166 @@ import os
 
 import jwt
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
 from django.db import IntegrityError
+from django.http import JsonResponse
 from MyAPI.models import MyUser, Video
 from MyAPI.serializers import (RegistrationSerializer, UserSerializer,
                                VideoSerializer)
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 # MyAPI/views.py
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from .models import MyUser
 
-class LoginView(APIView):
-    """
-    API endpoint for user login. Authenticates the user and returns an auth token.
-    """
+User = get_user_model()
+
+class MyVideosView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user_videos = Video.objects.filter(UserID=request.user)
+        serializer = VideoSerializer(user_videos, many=True)
+        return Response(serializer.data, status=200)
+
+class UploadVideoView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        # Get username and password from the request data
-        username = request.data.get('username')
-        password = request.data.get('password')
+        serializer = VideoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(UserID=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Authenticate the user
-        user = authenticate(username=username, password=password)
+class AllVideosView(APIView):
+    def get(self, request):
+        all_videos = Video.objects.all()
+        serializer = VideoSerializer(all_videos, many=True)
+        return Response(serializer.data)
         
-        if user is not None:
-            # Generate or retrieve the token for the user
-            token, created = Token.objects.get_or_create(user=user)
-            
-            return Response({
-                "message": "Login successful",
-                "token": token.key,
-                "username": user.username
-            }, status=status.HTTP_200_OK)
-        else:
-            # Authentication failed
-            return Response({
-                "message": "Invalid username or password"
-            }, status=status.HTTP_401_UNAUTHORIZED)
-
-class Register(APIView):
+# Signup View
+class SignupView(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        if not username or not password:
+            return Response(
+                {"error": "Username and password are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if User.objects.filter(username=username).exists():
+            return Response(
+                {"error": "Username already exists."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        user = User.objects.create_user(username=username, password=password)
+        return Response(
+            {"message": "User created successfully."},
+            status=status.HTTP_201_CREATED,
+        )
+        
+# Login View
+class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        email = request.data.get('email')
-        pseudo = request.data.get('pseudo')
+        from django.contrib.auth import authenticate
+        username = request.data.get("username")
+        password = request.data.get("password")
 
-        if not username:
-            return Response(
-                {'message': 'Error', 'data': {'error': 'Username is required'}},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        if not username or not password:
+            return Response({"error": "Both username and password are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Check if the username already exists
-        if MyUser.objects.filter(username=username).exists():
-            return Response(
-                {'message': 'Error', 'data': {'error': 'Username already taken'}},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        user = authenticate(username=username, password=password)
 
+        if not user:
+            return Response({"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        token, _ = Token.objects.get_or_create(user=user)
+
+        return Response({"token": token.key}, status=status.HTTP_200_OK)
+
+# class LoginView(APIView):
+#     """
+#     API endpoint for user login. Authenticates the user and returns an auth token.
+#     """
+#     def post(self, request):
+#         # Get username and password from the request data
+#         username = request.data.get('username')
+#         password = request.data.get('password')
+
+#         # Authenticate the user
+#         user = authenticate(username=username, password=password)
+        
+#         if user is not None:
+#             # Generate or retrieve the token for the user
+#             token, created = Token.objects.get_or_create(user=user)
+            
+#             return Response({
+#                 "message": "Login successful",
+#                 "token": token.key,
+#                 "username": user.username
+#             }, status=status.HTTP_200_OK)
+#         else:
+#             # Authentication failed
+#             return Response({
+#                 "message": "Invalid username or password"
+#             }, status=status.HTTP_401_UNAUTHORIZED)
+
+# class Register(APIView):
+#     permission_classes = [AllowAny]
+
+#     def post(self, request):
+#         username = request.data.get('username')
+#         password = request.data.get('password')
+#         email = request.data.get('email')
+#         pseudo = request.data.get('pseudo')
+
+#         if not username:
+#             return Response(
+#                 {'message': 'Error', 'data': {'error': 'Username is required'}},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+
+#         # Check if the username already exists
+#         if MyUser.objects.filter(username=username).exists():
+#             return Response(
+#                 {'message': 'Error', 'data': {'error': 'Username already taken'}},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+
+#         try:
+#             user = MyUser(username=username, email=email, pseudo=pseudo)
+#             user.set_password(password)
+#             user.save()
+#             user_data = RegistrationSerializer(user).data
+#             return Response({'message': 'Ok', 'data': user_data}, status=status.HTTP_201_CREATED)
+#         except IntegrityError as e:
+#             return Response(
+#                 {'message': 'Error', 'data': {'error': str(e)}},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+class Register(APIView):
+    def post(self, request):
+        data = request.data
         try:
-            user = MyUser(username=username, email=email, pseudo=pseudo)
-            user.set_password(password)
-            user.save()
-            user_data = RegistrationSerializer(user).data
-            return Response({'message': 'Ok', 'data': user_data}, status=status.HTTP_201_CREATED)
-        except IntegrityError as e:
-            return Response(
-                {'message': 'Error', 'data': {'error': str(e)}},
-                status=status.HTTP_400_BAD_REQUEST
+            user = MyUser.objects.create(
+                username=data.get('username'),
+                email=data.get('email'),
+                password=data.get('password'),
+                pseudo=data.get('pseudo'),
             )
-
+            return Response({'username': user.username, 'email': user.email}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            
 class CheckUsername(APIView):
     permission_classes = [AllowAny]
 
@@ -165,36 +248,47 @@ class Users(APIView):
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+# class CreateVideoView(APIView):
+#     def post(self, request, id):
+#         try:
+#             user = MyUser.objects.get(pk=id)
+#             name = request.data.get('name')
+#             source = request.FILES.get('source')
+
+#             if not name or not source:
+#                 return Response({'message': 'Name and source file are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+#             # Save the file
+#             fs = FileSystemStorage(location=settings.MEDIA_ROOT)
+#             filename = fs.save(source.name, source)
+
+#             # Create video object
+#             video = Video.objects.create(
+#                 name=name,
+#                 source=os.path.join('uploads', filename),
+#                 UserID=user
+#             )
+
+#             return Response({
+#                 'message': 'OK',
+#                 'data': VideoSerializer(video, context={'request': request}).data
+#             }, status=status.HTTP_201_CREATED)
+#         except MyUser.DoesNotExist:
+#             return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+#         except Exception as e:
+#             return Response({'message': f'Error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class CreateVideoView(APIView):
     def post(self, request, id):
         try:
-            user = MyUser.objects.get(pk=id)
-            name = request.data.get('name')
-            source = request.FILES.get('source')
-
-            if not name or not source:
-                return Response({'message': 'Name and source file are required'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Save the file
-            fs = FileSystemStorage(location=settings.MEDIA_ROOT)
-            filename = fs.save(source.name, source)
-
-            # Create video object
+            user = MyUser.objects.get(id=id)
             video = Video.objects.create(
-                name=name,
-                source=os.path.join('uploads', filename),
-                UserID=user
+                name=request.data.get('name'),
+                source=request.FILES['file'],
+                UserID=user,
             )
-
-            return Response({
-                'message': 'OK',
-                'data': VideoSerializer(video, context={'request': request}).data
-            }, status=status.HTTP_201_CREATED)
-        except MyUser.DoesNotExist:
-            return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'name': video.name, 'id': video.id}, status=status.HTTP_201_CREATED)
         except Exception as e:
-            return Response({'message': f'Error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class GetVideos(APIView):
     def get(self, request):
